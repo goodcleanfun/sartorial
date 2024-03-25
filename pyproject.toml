@@ -16,12 +16,12 @@ push = false
 "pyproject.toml" = [
     'current_version = "{version}"',
 ]
-"dorsal/__init__.py" = [
+"provisional/__init__.py" = [
     '^__version__ = "{version}"$',
 ]
 
 [project]
-name = "dorsal"
+name = "provisional"
 dynamic = ["version"]
 description = "Pydantic model base classes and custom type handling, JSON schema generation, etc. covering a variety of common scenarios without much config"
 readme = "README.md"
@@ -31,7 +31,7 @@ authors = [
     { name = "Al Barrentine" },
 ]
 keywords = [
-    "dorsal",
+    "provisional",
     "pydantic",
     "json-schema",
     "schema",
@@ -53,14 +53,14 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/goodcleanfun/dorsal"
-Repository = "https://github.com/goodcleanfun/dorsal"
+Homepage = "https://github.com/goodcleanfun/provisional"
+Repository = "https://github.com/goodcleanfun/provisional"
 
 [tool.coverage.run]
 parallel = true
 source = [
     "tests",
-    "dorsal"
+    "provisional"
 ]
 context = '${CONTEXT}'
 
@@ -81,9 +81,9 @@ ignore = [
 ]
 
 [tool.hatch.version]
-path = "dorsal/__init__.py"
+path = "provisional/__init__.py"
 
 [tool.hatch.build.targets.sdist]
 include = [
-    "/dorsal",
+    "/provisional",
 ]

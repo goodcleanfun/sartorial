@@ -3,5 +3,5 @@
 set -e
 set -x
 
-#ruff dorsal tests
-black dorsal tests --check
+#ruff provisional tests
+black provisional tests --check

@@ -6,10 +6,10 @@ on:
 
 jobs:
   test:
-    uses: goodcleanfun/dorsal/.github/workflows/test.yml@main
+    uses: goodcleanfun/provisional/.github/workflows/test.yml@main
   publish:
     name: Upload to PyPI
-    if: github.repository == 'goodcleanfun/dorsal' && github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+    if: github.repository == 'goodcleanfun/provisional' && github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
     runs-on: ubuntu-latest
     needs: test
     environment: release

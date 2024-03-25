@@ -1,4 +1,4 @@
-from dorsal.types import JSONSchemaFormatted
+from provisional.types import JSONSchemaFormatted
 from pydantic import BaseModel
 
 
