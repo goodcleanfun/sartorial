@@ -18,7 +18,7 @@ from foundational.nesting import nested_get, nested_set
 from foundational.nulls import Omitted
 from pydantic import BaseModel, ConfigDict, create_model
 
-from corral.types import JSON_SCHEMA_DEFAULT_TYPES, JSONSchemaFormatted
+from dorsal.types import JSON_SCHEMA_DEFAULT_TYPES, JSONSchemaFormatted
 
 
 def json_schema_extra(schema: Dict[str, AnyType], model: Type["Schema"]) -> None:

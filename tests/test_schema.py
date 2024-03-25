@@ -1,8 +1,8 @@
 from decimal import Decimal
 
-from corral.schema import Schema
-from corral.serialization import Serializable
-from corral.types import JSONSchemaFormatted
+from dorsal.schema import Schema
+from dorsal.serialization import Serializable
+from dorsal.types import JSONSchemaFormatted
 
 
 def test_custom_type_schema():

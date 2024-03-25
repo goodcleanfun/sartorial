@@ -1,6 +1,5 @@
+from dorsal.types import JSONSchemaFormatted
 from pydantic import BaseModel
-
-from corral.types import JSONSchemaFormatted
 
 
 def test_json_schema_formatted():

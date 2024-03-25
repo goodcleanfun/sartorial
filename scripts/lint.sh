@@ -3,5 +3,5 @@
 set -e
 set -x
 
-#ruff corral tests
-black corral tests --check
+#ruff dorsal tests
+black dorsal tests --check
