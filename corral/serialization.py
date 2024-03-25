@@ -179,3 +179,20 @@ def decode_object(expected_type, obj):
         except (TypeError, ValueError):
             return obj
     return decoder(obj)
+
+
+class Serializable:
+    encode: Callable[[Any], Any] = str
+    decode: Callable[[Any], Any]
+
+    @classmethod
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        if not hasattr(cls, "decode"):
+            if not hasattr(cls, "__init__") or cls.__init__ == object.__init__:
+                raise ValueError(
+                    f"Serializable subclass {cls} must implement either __init__ or decode"
+                )
+            cls.decode = cls
+        ENCODERS_BY_TYPE[cls] = cls.encode
+        DECODERS_BY_TYPE[cls] = cls.decode
