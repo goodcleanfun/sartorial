@@ -1,10 +1,14 @@
 import json
 from enum import Enum
+from typing import Any as AnyType
 from typing import (
-    Any,
     Dict,
     List,
+    Sequence,
     Type,
+    get_args,
+    get_origin,
+    get_type_hints,
 )
 
 from foundational.casing import to_camel_case
@@ -17,7 +21,7 @@ from pydantic import BaseModel, ConfigDict, create_model
 from corral.types import JSON_SCHEMA_DEFAULT_TYPES, JSONSchemaFormatted
 
 
-def json_schema_extra(schema: Dict[str, Any], model: Type["Schema"]) -> None:
+def json_schema_extra(schema: Dict[str, AnyType], model: Type["Schema"]) -> None:
     model.json_schema_extra(schema, model)
 
 
@@ -30,8 +34,49 @@ class Schema(BaseModel):
     )
 
     @classmethod
-    def json_schema_extra(cls, schema: Dict[str, Any], model: Type["Schema"]) -> None:
-        pass
+    def json_schema_extra(
+        cls, schema: Dict[str, AnyType], model: Type["Schema"]
+    ) -> None:
+        schema.setdefault("properties", {})
+        type_hints = get_type_hints(model)
+
+        for name in cls.model_fields:
+            field_type = type_hints.get(name)
+            outer_field_type = field_type
+            if field_type:
+                origin = get_origin(field_type)
+                if origin:
+                    args = get_args(field_type)
+                    outer_field_type = origin
+                    if args:
+                        field_type = args[0]
+            if not isinstance(field_type, type):
+                field_type = type(field_type)
+
+            is_array = False
+            if outer_field_type and not isinstance(outer_field_type, type):
+                outer_field_type = type(outer_field_type)
+
+            if outer_field_type and outer_field_type is not field_type:
+                origin = outer_field_type
+                if issubclass(origin, Sequence):
+                    is_array = True
+
+            if field_type in JSONSchemaFormatted.__type_format_strings__:
+                (
+                    schema_type,
+                    schema_format,
+                ) = JSONSchemaFormatted.__type_format_strings__[field_type]
+
+                props = {
+                    "type": schema_type,
+                    "format": schema_format,
+                }
+
+                if is_array:
+                    schema["properties"][name] = {"type": "array", "items": props}
+                else:
+                    schema["properties"][name] = props
 
     @classmethod
     def from_schema_dict(cls, schema: Dict, name: str = Omitted):
@@ -212,7 +257,7 @@ class ModelSchema(Schema):
         model_name = model.__name__
 
         def json_schema_extra(
-            json_schema: Dict[str, Any], schema_cls: Type["ModelSchema"]
+            json_schema: Dict[str, AnyType], schema_cls: Type["ModelSchema"]
         ) -> None:
             schema_cls.json_schema_extra(json_schema, schema_cls)
 
