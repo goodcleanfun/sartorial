@@ -140,6 +140,7 @@ class Schema(BaseModel):
                 enum_values = prop.get("enum")
 
                 field_is_array = field_is_object = False
+                use_dict_typed_value = False
                 if field_type == "array":
                     items = prop.get("items", {})
                     field_type = items.get("type", field_type)
@@ -147,10 +148,15 @@ class Schema(BaseModel):
                     enum_values = items.get("enum")
                     field_is_array = True
                 elif field_type == "object":
-                    obj_props = prop.get("properties", {})
-                    field_type = obj_props.get("type", field_type)
-                    format_type = obj_props.get("format")
-                    enum_values = obj_props.get("enum")
+                    additional_props = prop.get("additionalProperties")
+                    if not additional_props:
+                        additional_props = {}
+                    field_object_value_type = additional_props.get("type")
+                    if field_object_value_type:
+                        field_type = field_object_value_type
+                        use_dict_typed_value = True
+                    format_type = additional_props.get("format")
+                    enum_values = additional_props.get("enum")
                     field_is_object = True
 
                 value_type = None
@@ -165,7 +171,10 @@ class Schema(BaseModel):
                     if field_is_array:
                         value_type = List[value_type]
                     elif field_is_object:
-                        value_type = Dict[str, value_type]
+                        if use_dict_typed_value:
+                            value_type = Dict[str, value_type]
+                        else:
+                            value_type = Dict
                 elif enum_values:
                     title = ref_name or prop.get("title", to_camel_case(key))
                     if title in ref_cache:
