@@ -3,5 +3,5 @@
 set -e
 set -x
 
-#ruff provisional tests
-black provisional tests --check
+#ruff sartorial tests
+black sartorial tests --check

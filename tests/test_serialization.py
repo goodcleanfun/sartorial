@@ -1,7 +1,7 @@
 import json
 from datetime import date, datetime, time, timedelta
 
-from provisional.serialization import Serializable, decode_object, encode_object
+from sartorial.serialization import Serializable, decode_object, encode_object
 
 
 def test_encode_object():

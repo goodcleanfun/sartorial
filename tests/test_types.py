@@ -1,5 +1,5 @@
-from provisional.types import JSONSchemaFormatted
 from pydantic import BaseModel
+from sartorial.types import JSONSchemaFormatted
 
 
 def test_json_schema_formatted():

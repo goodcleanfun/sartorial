@@ -17,8 +17,7 @@ from foundational.enum import StringEnum
 from foundational.nesting import nested_get, nested_set
 from foundational.nulls import Omitted
 from pydantic import BaseModel, ConfigDict, create_model
-
-from provisional.types import JSON_SCHEMA_DEFAULT_TYPES, JSONSchemaFormatted
+from sartorial.types import JSON_SCHEMA_DEFAULT_TYPES, JSONSchemaFormatted
 
 
 def json_schema_extra(schema: Dict[str, AnyType], model: Type["Schema"]) -> None:

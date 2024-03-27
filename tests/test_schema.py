@@ -1,8 +1,8 @@
 from decimal import Decimal
 
-from provisional.schema import Schema
-from provisional.serialization import Serializable
-from provisional.types import JSONSchemaFormatted
+from sartorial.schema import Schema
+from sartorial.serialization import Serializable
+from sartorial.types import JSONSchemaFormatted
 
 
 def test_custom_type_schema():

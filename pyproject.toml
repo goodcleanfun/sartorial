@@ -16,12 +16,12 @@ push = false
 "pyproject.toml" = [
     'current_version = "{version}"',
 ]
-"provisional/__init__.py" = [
+"sartorial/__init__.py" = [
     '^__version__ = "{version}"$',
 ]
 
 [project]
-name = "provisional"
+name = "sartorial"
 dynamic = ["version"]
 description = "Pydantic model base classes and custom type handling, JSON schema generation, etc. covering a variety of common scenarios without much config"
 readme = "README.md"
@@ -31,7 +31,7 @@ authors = [
     { name = "Al Barrentine" },
 ]
 keywords = [
-    "provisional",
+    "sartorial",
     "pydantic",
     "json-schema",
     "schema",
@@ -53,14 +53,14 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/goodcleanfun/provisional"
-Repository = "https://github.com/goodcleanfun/provisional"
+Homepage = "https://github.com/goodcleanfun/sartorial"
+Repository = "https://github.com/goodcleanfun/sartorial"
 
 [tool.coverage.run]
 parallel = true
 source = [
     "tests",
-    "provisional"
+    "sartorial"
 ]
 context = '${CONTEXT}'
 
@@ -81,9 +81,9 @@ ignore = [
 ]
 
 [tool.hatch.version]
-path = "provisional/__init__.py"
+path = "sartorial/__init__.py"
 
 [tool.hatch.build.targets.sdist]
 include = [
-    "/provisional",
+    "/sartorial",
 ]
