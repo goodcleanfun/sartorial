@@ -182,17 +182,17 @@ def decode_object(expected_type, obj):
 
 
 class Serializable:
-    encode: Callable[[Any], Any] = str
-    decode: Callable[[Any], Any]
+    to_string: Callable[[Any], Any] = str
+    from_string: Callable[[Any], Any]
 
     @classmethod
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
-        if not hasattr(cls, "decode"):
+        if not hasattr(cls, "from_string"):
             if not hasattr(cls, "__init__") or cls.__init__ == object.__init__:
                 raise ValueError(
-                    f"Serializable subclass {cls} must implement either __init__ or decode"
+                    f"Serializable subclass {cls} must implement either __init__ or from_string"
                 )
-            cls.decode = cls
-        ENCODERS_BY_TYPE[cls] = cls.encode
-        DECODERS_BY_TYPE[cls] = cls.decode
+            cls.from_string = cls
+        ENCODERS_BY_TYPE[cls] = cls.to_string
+        DECODERS_BY_TYPE[cls] = cls.from_string
