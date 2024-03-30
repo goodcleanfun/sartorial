@@ -17,7 +17,7 @@ from uuid import UUID
 from foundational.nulls import DoesNotExist, Omitted
 from pydantic import GetCoreSchemaHandler
 from pydantic.json_schema import GetJsonSchemaHandler, JsonSchemaValue
-from pydantic_core import CoreSchema, core_schema
+from pydantic_core import CoreSchema, SchemaSerializer, core_schema
 
 JSON_SCHEMA_DEFAULT_TYPES = {
     "string": str,
@@ -108,6 +108,20 @@ class JSONSchemaFormatted:
     def __get_pydantic_core_schema__(
         cls, source_type: AnyType, handler: GetCoreSchemaHandler
     ) -> CoreSchema:
-        return core_schema.no_info_after_validator_function(
-            cls.validate, core_schema.any_schema()
+        options = {}
+        if hasattr(source_type, "to_string"):
+            options.update(
+                serialization=core_schema.plain_serializer_function_ser_schema(
+                    source_type.to_string,
+                    info_arg=False,
+                    return_schema=core_schema.str_schema(),
+                )
+            )
+
+        schema = core_schema.no_info_after_validator_function(
+            cls.validate, core_schema.any_schema(), **options
         )
+        # Workaround from https://github.com/pydantic/pydantic/issues/7779
+        if options:
+            cls.__pydantic_serializer__ = SchemaSerializer(schema)
+        return schema
