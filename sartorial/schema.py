@@ -242,6 +242,12 @@ class Schema(BaseModel):
         data = json.loads(data_json)
         return cls.from_dict(data)
 
+    def to_dict(self):
+        return self.model_dump()
+
+    def to_json(self):
+        return self.model_dump_json()
+
     @classmethod
     def create_model(cls, model, fields, base=None):
         if hasattr(model, "__name__"):
