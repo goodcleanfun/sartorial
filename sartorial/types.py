@@ -73,7 +73,7 @@ class JSONSchemaFormatted:
     @classmethod
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
-        if cls.python_type is Omitted:
+        if "python_type" not in cls.__dict__:
             cls.python_type = cls
         if not cls.schema_format:
             raise ValueError("schema_format is required")
