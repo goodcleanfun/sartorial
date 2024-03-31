@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+
 from sartorial.types import JSONSchemaFormatted
 
 
