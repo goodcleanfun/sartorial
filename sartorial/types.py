@@ -14,7 +14,7 @@ from typing import Any as AnyType
 from typing import ClassVar, Type
 from uuid import UUID
 
-from foundational.nulls import DoesNotExist, Omitted
+from communal.nulls import DoesNotExist, Omitted
 from pydantic import GetCoreSchemaHandler
 from pydantic.json_schema import GetJsonSchemaHandler, JsonSchemaValue
 from pydantic_core import CoreSchema, SchemaSerializer, core_schema

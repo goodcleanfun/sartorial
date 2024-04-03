@@ -11,11 +11,11 @@ from typing import (
     get_type_hints,
 )
 
-from foundational.casing import to_camel_case
-from foundational.collections import is_mapping
-from foundational.enum import StringEnum
-from foundational.nesting import nested_get, nested_set
-from foundational.nulls import Omitted
+from communal.casing import to_camel_case
+from communal.collections import is_mapping
+from communal.enum import StringEnum
+from communal.nesting import nested_get, nested_set
+from communal.nulls import Omitted
 from pydantic import BaseModel, ConfigDict, create_model
 
 from sartorial.types import JSON_SCHEMA_DEFAULT_TYPES, JSONSchemaFormatted
