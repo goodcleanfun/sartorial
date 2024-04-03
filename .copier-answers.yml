@@ -1,8 +1,9 @@
 # Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
-_commit: 6166af2
+_commit: 125577f
 _src_path: gh:goodcleanfun/pypi-template
 author: Al Barrentine
-description: Pydantic model base classes and custom type handling, JSON schema generation, etc. covering a variety of common scenarios without much config
+description: Pydantic model base classes and custom type handling, JSON schema generation,
+    etc. covering a variety of common scenarios without much config
 license: MIT
 name: sartorial
 repo_org: goodcleanfun

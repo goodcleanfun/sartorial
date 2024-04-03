@@ -3,5 +3,5 @@
 set -e
 set -x
 
-ruff sartorial tests
+ruff check sartorial tests --fix
 black sartorial tests --check
