@@ -78,7 +78,7 @@ class JSONSchemaFormatted:
         if not cls.schema_format:
             raise ValueError("schema_format is required")
         if "schema_format" not in cls.__dict__ and (
-            not hasattr(".__pydantic_generic_metadata__")
+            not hasattr(cls, ".__pydantic_generic_metadata__")
             or not cls.__pydantic_generic_metadata__.get("origin")
         ):
             raise ValueError("schema_format is required for generic base classes")
