@@ -102,6 +102,15 @@ def any_to_time(t):
         return date_parse(t).time()
 
 
+def any_to_decimal(d):
+    if isinstance(d, Decimal):
+        return d
+    elif isinstance(d, str):
+        return Decimal(d)
+    else:
+        return Decimal(str(d))
+
+
 def any_to_uuid(u):
     if isinstance(u, UUID):
         return u
@@ -121,7 +130,7 @@ DECODERS_BY_TYPE: Dict[Type[Any], Callable[[Any], Any]] = {
     datetime.datetime: any_to_datetime,
     datetime.time: any_to_time,
     datetime.timedelta: timedelta_parse,
-    Decimal: Decimal,
+    Decimal: any_to_decimal,
     IPv4Address: IPv4Address,
     IPv4Interface: IPv4Interface,
     IPv4Network: IPv4Network,
