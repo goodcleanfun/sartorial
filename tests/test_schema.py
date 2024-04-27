@@ -35,14 +35,14 @@ def test_custom_type_schema():
         i=1,
         f=1.0,
         s="string",
-        d="1.0",
+        d=1.005678,
         custom_list=["v1", "v2"],
         custom_dict={"k1": "v1", "k2": "v2"},
     )
     assert isinstance(n.custom, CustomTypeA)
     assert n.custom.value == "value"
     assert isinstance(n.d, Decimal)
-    assert n.d == Decimal("1.0")
+    assert n.d == Decimal("1.005678")
     assert isinstance(n.custom_list[0], CustomTypeA)
     assert n.custom_list[0].value == "v1"
     assert isinstance(n.custom_dict["k1"], CustomTypeA)
