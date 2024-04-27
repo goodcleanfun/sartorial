@@ -1,4 +1,4 @@
-__version__ = "0.7.0"
+__version__ = "0.7.1"
 
 from .schema import ModelSchema, Schema, StrictModelSchema, StrictSchema
 from .serialization import Serializable, decode_object, encode_object
