@@ -43,16 +43,10 @@ class SchemaMeta(type(BaseModel)):
         **kwargs: AnyType,
     ):
         cls = super().__new__(mcs, cls_name, bases, namespace, **kwargs)
-        cls.model_fields = {
-            name: AnnotatedFieldInfo(**field_info._attributes_set, key=name)
-            for name, field_info in cls.model_fields.items()
-        }
+        model_fields = cls.model_fields
+        for name, field in model_fields.items():
+            setattr(cls, name, AnnotatedFieldInfo(**field._attributes_set, key=name))
         return cls
-
-    def __getattr__(cls, name):
-        if name in cls.model_fields:
-            return cls.model_fields[name]
-        raise AttributeError(f"'{cls.__name__}' object has no attribute '{name}'")
 
 
 class Schema(BaseModel, metaclass=SchemaMeta):
