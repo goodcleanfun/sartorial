@@ -17,6 +17,7 @@ from communal.enum import StringEnum
 from communal.nesting import nested_get, nested_set
 from communal.nulls import Omitted
 from pydantic import BaseModel, ConfigDict, create_model
+from pydantic.fields import FieldInfo
 
 from sartorial.types import JSON_SCHEMA_DEFAULT_TYPES, JSONSchemaFormatted
 
@@ -25,7 +26,36 @@ def json_schema_extra(schema: Dict[str, AnyType], model: Type["Schema"]) -> None
     model.json_schema_extra(schema, model)
 
 
-class Schema(BaseModel):
+class AnnotatedFieldInfo(FieldInfo):
+    __slots__ = FieldInfo.__slots__ + ("key",)
+
+    def __init__(self, *args, key: str, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.key = key
+
+
+class SchemaMeta(type(BaseModel)):
+    def __new__(
+        mcs,
+        cls_name: str,
+        bases: tuple[type[AnyType], ...],
+        namespace: dict[str, AnyType],
+        **kwargs: AnyType,
+    ):
+        cls = super().__new__(mcs, cls_name, bases, namespace, **kwargs)
+        cls.model_fields = {
+            name: AnnotatedFieldInfo(**field_info._attributes_set, key=name)
+            for name, field_info in cls.model_fields.items()
+        }
+        return cls
+
+    def __getattr__(cls, name):
+        if name in cls.model_fields:
+            return cls.model_fields[name]
+        raise AttributeError(f"'{cls.__name__}' object has no attribute '{name}'")
+
+
+class Schema(BaseModel, metaclass=SchemaMeta):
     model_config = ConfigDict(
         validate_assignment=True,
         extra="allow",
