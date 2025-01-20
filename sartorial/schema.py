@@ -5,6 +5,7 @@ from typing import (
     Dict,
     List,
     Sequence,
+    Tuple,
     Type,
     get_args,
     get_origin,
@@ -38,8 +39,8 @@ class SchemaMeta(type(BaseModel)):
     def __new__(
         mcs,
         cls_name: str,
-        bases: tuple[type[AnyType], ...],
-        namespace: dict[str, AnyType],
+        bases: Tuple[Type[AnyType], ...],
+        namespace: Dict[str, AnyType],
         **kwargs: AnyType,
     ):
         cls = super().__new__(mcs, cls_name, bases, namespace, **kwargs)
