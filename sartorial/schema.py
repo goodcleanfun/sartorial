@@ -1,11 +1,11 @@
 import json
+import warnings
 from enum import Enum
 from typing import Any as AnyType
 from typing import (
     Dict,
     List,
     Sequence,
-    Tuple,
     Type,
     get_args,
     get_origin,
@@ -27,6 +27,14 @@ def json_schema_extra(schema: Dict[str, AnyType], model: Type["Schema"]) -> None
     model.json_schema_extra(schema, model)
 
 
+warnings.filterwarnings(
+    "ignore",
+    message=r'Field name ".*" shadows an attribute in parent ".*"',
+    category=UserWarning,
+    module="pydantic._internal._fields",
+)
+
+
 class AnnotatedFieldInfo(FieldInfo):
     __slots__ = FieldInfo.__slots__ + ("key",)
 
@@ -35,28 +43,20 @@ class AnnotatedFieldInfo(FieldInfo):
         self.key = key
 
 
-class SchemaMeta(type(BaseModel)):
-    def __new__(
-        mcs,
-        cls_name: str,
-        bases: Tuple[Type[AnyType], ...],
-        namespace: Dict[str, AnyType],
-        **kwargs: AnyType,
-    ):
-        cls = super().__new__(mcs, cls_name, bases, namespace, **kwargs)
-        model_fields = cls.model_fields
-        for name, field in model_fields.items():
-            setattr(cls, name, AnnotatedFieldInfo(**field._attributes_set, key=name))
-        return cls
-
-
-class Schema(BaseModel, metaclass=SchemaMeta):
+class Schema(BaseModel):
     model_config = ConfigDict(
         validate_assignment=True,
         extra="allow",
         json_schema_extra=json_schema_extra,
         arbitrary_types_allowed=True,
     )
+
+    @classmethod
+    def __pydantic_init_subclass__(cls, **kwargs):
+        super().__pydantic_init_subclass__(**kwargs)
+        model_fields = cls.model_fields
+        for name, field in model_fields.items():
+            setattr(cls, name, AnnotatedFieldInfo(**field._attributes_set, key=name))
 
     @classmethod
     def json_schema_extra(
