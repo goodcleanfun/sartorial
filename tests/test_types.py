@@ -5,7 +5,7 @@ from sartorial.types import JSONSchemaFormatted
 
 def test_json_schema_formatted():
     class CustomType(JSONSchemaFormatted):
-        schema_format = "custom"
+        __schema_format__ = "custom"
 
     class Model(BaseModel):
         custom: CustomType

@@ -8,7 +8,7 @@ from sartorial.types import JSONSchemaFormatted
 
 def test_custom_type_schema():
     class CustomTypeA(JSONSchemaFormatted, Serializable):
-        schema_format = "custom-a"
+        __schema_format__ = "custom-a"
 
         def __init__(self, value) -> None:
             if not isinstance(value, str):

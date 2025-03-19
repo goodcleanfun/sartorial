@@ -1,5 +1,6 @@
 import json
 import warnings
+from dataclasses import dataclass
 from enum import Enum
 from typing import Any as AnyType
 from typing import (
@@ -15,6 +16,7 @@ from typing import (
 from communal.casing import to_camel_case
 from communal.collections import is_mapping
 from communal.enum import StringEnum
+from communal.iterables import is_sequence
 from communal.nesting import nested_get, nested_set
 from communal.nulls import Omitted
 from pydantic import BaseModel, ConfigDict, create_model
@@ -41,6 +43,17 @@ class AnnotatedFieldInfo(FieldInfo):
     def __init__(self, *args, key: str, **kwargs):
         super().__init__(*args, **kwargs)
         self.key = key
+
+
+@dataclass
+class SchemaRefQueueItem:
+    key_path: List[str]
+    model_name: str
+    is_ref: bool
+    path_default: AnyType
+    is_array: bool
+    required_props: List[str]
+    props: Dict[str, AnyType]
 
 
 class Schema(BaseModel):
@@ -87,6 +100,8 @@ class Schema(BaseModel):
                 if issubclass(origin, Sequence):
                     is_array = True
 
+            is_enum = issubclass(field_type, Enum)
+
             if field_type in JSONSchemaFormatted.__type_format_strings__:
                 (
                     schema_type,
@@ -97,6 +112,28 @@ class Schema(BaseModel):
                     "type": schema_type,
                     "format": schema_format,
                 }
+
+                if is_enum:
+                    props["enum"] = [
+                        {"name": k, "value": v.value}
+                        for k, v in field_type.__members__.items()
+                    ]
+
+                    types = {type(e.value) for e in field_type.__members__.values()}
+                    if types == {str}:
+                        props["type"] = "string"
+                    elif types == {int}:
+                        props["type"] = "integer"
+                    elif types == {float}:
+                        props["type"] = "number"
+                    elif types == {bool}:
+                        props["type"] = "boolean"
+                    elif types == {list}:
+                        props["type"] = "array"
+                    elif types == {type(None)}:
+                        props["type"] = "null"
+
+                    props["title"] = field_type.__name__
 
                 if is_array:
                     schema["properties"][name] = {"type": "array", "items": props}
@@ -112,20 +149,32 @@ class Schema(BaseModel):
         original_props = schema.get("properties", {})
 
         all_fields = {}
-        queue = [([], name, None, False, required_props, original_props)]
+        queue = [
+            SchemaRefQueueItem(
+                key_path=[],
+                model_name=name,
+                is_ref=False,
+                path_default=None,
+                is_array=False,
+                required_props=required_props,
+                props=original_props,
+            )
+        ]
+
         rel_key_paths = []
 
         ref_cache = {}
 
         while queue:
-            (
-                key_path,
-                model_name,
-                path_default,
-                is_array,
-                required_props,
-                props,
-            ) = queue.pop()
+            item = queue.pop()
+            key_path = item.key_path
+            model_name = item.model_name
+            is_ref = item.is_ref
+            path_default = item.path_default
+            is_array = item.is_array
+            required_props = item.required_props
+            props = item.props
+
             fields = {}
             required = set(required_props)
 
@@ -148,13 +197,14 @@ class Schema(BaseModel):
                         ref_props = ref["properties"]
                         ref_required_props = ref.get("required", [])
                         queue.append(
-                            (
-                                key_path + [key],
-                                ref_name,
-                                default_value,
-                                ref_is_array,
-                                ref_required_props,
-                                ref_props,
+                            SchemaRefQueueItem(
+                                key_path=key_path + [key],
+                                model_name=ref_name,
+                                is_ref=True,
+                                path_default=default_value,
+                                is_array=ref_is_array,
+                                required_props=ref_required_props,
+                                props=ref_props,
                             )
                         )
                         continue
@@ -201,22 +251,34 @@ class Schema(BaseModel):
                         else:
                             value_type = Dict
                 elif enum_values:
-                    title = ref_name or prop.get("title", to_camel_case(key))
+                    title = (
+                        prop.get("title", to_camel_case(key))
+                        if not field_is_array
+                        else prop["items"].get("title", to_camel_case(key))
+                    )
+                    if is_ref and ref_name:
+                        title = ref_name
+
                     if title in ref_cache:
                         value_type = ref_cache[title]
                     else:
                         if is_mapping(enum_values):
                             value_type = StringEnum(title, enum_values)
+                        elif is_sequence(enum_values) and is_mapping(enum_values[0]):
+                            value_type = StringEnum(
+                                title,
+                                [(item["name"], item["value"]) for item in enum_values],
+                            )
                         else:
                             value_type = Enum(
                                 title, {item: item for item in enum_values}
                             )
 
-                        ref_cache[title] = value_type
+                        if is_ref:
+                            ref_cache[title] = value_type
 
-                    if ref_is_array:
+                    if field_is_array or ref_is_array:
                         value_type = List[value_type]
-
                 if value_type:
                     fields[key] = (value_type, default_value)
 

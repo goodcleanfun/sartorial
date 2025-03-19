@@ -52,9 +52,9 @@ class JSONSchemaFormatted:
         __string_type_formats__.setdefault(t, {})
         __string_type_formats__[t][f] = k
 
-    python_type: ClassVar[Type] = Omitted
-    schema_type: ClassVar[str] = "string"
-    schema_format: ClassVar[str] = Omitted
+    __python_type__: ClassVar[Type] = Omitted
+    __schema_type__: ClassVar[str] = "string"
+    __schema_format__: ClassVar[str] = Omitted
 
     @classmethod
     def register(cls, python_type: Type, schema_type: str, schema_format: str):
@@ -73,16 +73,16 @@ class JSONSchemaFormatted:
     @classmethod
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
-        if "python_type" not in cls.__dict__:
-            cls.python_type = cls
-        if not cls.schema_format:
-            raise ValueError("schema_format is required")
-        if "schema_format" not in cls.__dict__ and (
+        if "__python_type__" not in cls.__dict__:
+            cls.__python_type__ = cls
+        if not cls.__schema_format__:
+            raise ValueError("__schema_format__ is required")
+        if "__schema_format__" not in cls.__dict__ and (
             not hasattr(cls, ".__pydantic_generic_metadata__")
             or not cls.__pydantic_generic_metadata__.get("origin")
         ):
-            raise ValueError("schema_format is required for generic base classes")
-        cls.register(cls.python_type, cls.schema_type, cls.schema_format)
+            raise ValueError("__schema_format__ is required for generic base classes")
+        cls.register(cls.__python_type__, cls.__schema_type__, cls.__schema_format__)
 
     @classmethod
     def get_type(
@@ -103,11 +103,11 @@ class JSONSchemaFormatted:
 
     @classmethod
     def add_to_field_json_schema(cls, json_schema: JsonSchemaValue):
-        json_schema.update(type=cls.schema_type, format=cls.schema_format)
+        json_schema.update(type=cls.__schema_type__, format=cls.__schema_format__)
 
     @classmethod
     def validate(cls, value: AnyType) -> AnyType:
-        return cls.python_type(value)
+        return cls.__python_type__(value)
 
     @classmethod
     def __get_pydantic_core_schema__(
